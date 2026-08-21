@@ -1,0 +1,52 @@
+# ══════════════════════════════════════════════════════════════════════
+#  Arès — default model cascade  (ares-cascade/1)
+#  Route each agent role to the right-cost engine. Local-first.
+#  Chosen from Arès's own model characterization (see INTEGRATION_NOTES.md).
+# ══════════════════════════════════════════════════════════════════════
+
+policy: local-first          # run everything local; hosted only on explicit opt-in
+context_floor: 49152         # Strix agent prompts ~40k tokens → never go below this
+
+tiers:
+
+  # ── TRIAGE ── breadth: recon, crawl, map, enumerate, cheap triage ──────
+  - name: triage
+    base_model: "qwen3.5:latest"            # fast 14B, reliable tool-calling
+    engine_model: "ares-cascade-triage-qwen3-5"
+    num_ctx: 49152
+    reasoning_effort: low
+    route_when: "default — all exploration / breadth-first agent work"
+    enabled: true
+    air_gapped: true
+    note: "fast; may miss/hallucinate deep findings → never the final judge"
+
+  # ── VALIDATE ── depth: confirm the vuln, build the PoC, write the report ─
+  - name: validate
+    base_model: "hf.co/OBLITERATUS/Qwen3.6-27B-OBLITERATED:Q4_K_M"  # strong, uncensored
+    engine_model: "ares-cascade-validate-qwen3-6-27b-obliterated"
+    num_ctx: 65536
+    reasoning_effort: medium
+    route_when: "a triage agent flags a candidate, or before create_vulnerability_report"
+    enabled: true
+    air_gapped: true
+    note: "accurate but slow locally — used only on the calls that matter"
+
+  # ── ESCALATE ── hardest calls, OFF by default (leaves the machine) ──────
+  - name: escalate
+    base_model: "anthropic/claude-sonnet-5"  # hosted frontier (opt-in)
+    engine_model: "anthropic/claude-sonnet-5"
+    num_ctx: 200000
+    reasoning_effort: high
+    route_when: "validate confidence is low AND user opted into hosted escalation"
+    enabled: false                            # local-first: disabled by default
+    air_gapped: false
+    note: "set enabled:true + provide an API key to allow cloud escalation"
+
+# ── Not a tier (on purpose) ────────────────────────────────────────────
+# WhiteRabbitNeo V3 7B: excellent security knowledge, but emits tool calls as
+# raw text (<toolcall>…</toolcall>) instead of the structured tool_calls field,
+# so it breaks the agent loop. Use it in the Arès console as a knowledge oracle,
+# never as an agent engine.
+excluded_from_cascade:
+  - model: "WhiteRabbitNeo-V3-7B"
+    reason: "no OpenAI-format tool-calling; console-only"

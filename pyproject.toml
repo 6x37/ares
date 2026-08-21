@@ -1,0 +1,20 @@
+[project]
+name = "ares-agent"
+version = "0.1.0"
+description = "Local-first, verifiable autonomous AI pentester — a hard-fork of Strix"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "Apache-2.0"
+authors = [{ name = "Ziad Maslah" }]
+dependencies = ["cryptography>=41"]
+keywords = ["security", "pentest", "ai", "agent", "local", "offline", "signed"]
+
+[project.scripts]
+ares = "ares_setup.home:home"
+
+[project.optional-dependencies]
+engine = ["strix-agent==1.5.3"]   # the forked engine (patched via ares_fork)
+
+[tool.setuptools]
+packages = ["ares_setup", "ares_provenance"]
+py-modules = ["ares_console", "ares_watch"]

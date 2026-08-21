@@ -1,0 +1,11 @@
+Arès
+Copyright 2026 Ziad Maslah (6x37)
+
+This product is a derivative work of Strix
+  https://github.com/usestrix/strix
+  Copyright 2025 OmniSecure Inc., licensed under the Apache License 2.0.
+
+Modified files carry a notice per Apache-2.0 §4. Arès adds original modules
+(ares_setup/, ares_provenance/, ares_console.py, ares_watch.py) and patches to
+the Strix runtime (see ares_fork/). The name "Strix" is used only to describe
+the origin of this work, per Apache-2.0.

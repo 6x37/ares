@@ -1,0 +1,28 @@
+#!/bin/bash
+# Arès launcher — run from anywhere. Dispatches to the right module.
+ARES_HOME="/Users/z/Desktop/ares"
+cd "$ARES_HOME" || { echo "Arès introuvable à $ARES_HOME"; exit 1; }
+cmd="${1:-home}"; shift 2>/dev/null
+case "$cmd" in
+  home|hub|"") exec python3 -m ares_setup.home ;;
+  dashboard|dash) exec python3 -m ares_setup.dashboard "$@" ;;
+  init)           exec python3 -m ares_setup "$@" ;;
+  eval)           exec python3 -m ares_setup.model_eval "$@" ;;
+  confidence|conf)exec python3 -m ares_setup.confidence "$@" ;;
+  offline)        exec python3 -m ares_setup.offline "$@" ;;
+  console|chat)   exec python3 ares_console.py "$@" ;;
+  watch)          exec python3 ares_watch.py "$@" ;;
+  sign|verify|keygen) exec python3 -m ares_provenance "$cmd" "$@" ;;
+  help|-h|--help|"")
+    echo "Arès — usage: ares <command>"
+    echo "  dashboard        hardware + model catalog (default)"
+    echo "  init             guided local setup wizard"
+    echo "  eval <model>     live STRIX-READY model eval"
+    echo "  confidence <run> trust score of a finished scan"
+    echo "  console          streaming local console"
+    echo "  watch            live agent activity during a scan"
+    echo "  offline <env>    air-gap audit"
+    echo "  sign|verify <run>  Ed25519 report provenance"
+    ;;
+  *) echo "commande inconnue: $cmd (ares help)"; exit 1 ;;
+esac
