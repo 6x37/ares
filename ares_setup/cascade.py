@@ -49,7 +49,7 @@ DEFAULT_CASCADE: list[CascadeTier] = [
         name="validate",
         role="confirm vulnerability, build working PoC, write the report",
         model_tag="hf.co/OBLITERATUS/Qwen3.6-27B-OBLITERATED:Q4_K_M",
-        num_ctx=65536,
+        num_ctx=49152,
         reasoning="medium",
         when="a triage agent flags a candidate finding, or before create_vulnerability_report",
     ),

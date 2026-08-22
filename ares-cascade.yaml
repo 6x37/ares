@@ -24,7 +24,7 @@ tiers:
   - name: validate
     base_model: "hf.co/OBLITERATUS/Qwen3.6-27B-OBLITERATED:Q4_K_M"  # strong, uncensored
     engine_model: "ares-cascade-validate-qwen3-6-27b-obliterated"
-    num_ctx: 65536
+    num_ctx: 49152
     reasoning_effort: medium
     route_when: "a triage agent flags a candidate, or before create_vulnerability_report"
     enabled: true
