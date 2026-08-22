@@ -12,9 +12,17 @@ keywords = ["security", "pentest", "ai", "agent", "local", "offline", "signed"]
 [project.scripts]
 ares = "ares_setup.home:home"
 
+# The engine (vendored & modified Strix) is owned in ares_engine/strix.
+# These are the engine's third-party runtime deps (from Strix 1.5.3 pyproject).
 [project.optional-dependencies]
-engine = ["strix-agent==1.5.3"]   # the forked engine (patched via ares_fork)
+engine = [
+  "openai-agents[litellm]>=0.19.0,<0.20", "openai>=2.45.0,<3", "litellm",
+  "pydantic>=2.11.3", "pydantic-settings>=2.13.0", "rich", "docker>=7.1.0",
+  "requests>=2.32.0", "cvss>=3.2", "caido-sdk-client>=0.2.0",
+  "reportlab>=4.0", "pypdf>=5.0", "cryptography>=48.0.1,<49", "pyyaml>=6.0",
+]
 
 [tool.setuptools]
-packages = ["ares_setup", "ares_provenance"]
+packages = ["ares_setup", "ares_provenance", "strix"]
+package-dir = {"strix" = "ares_engine/strix"}
 py-modules = ["ares_console", "ares_watch"]
