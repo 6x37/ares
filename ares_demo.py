@@ -108,17 +108,17 @@ DEMO_URL = "https://claude.ai/code/artifact/f4b16bbe-6c84-4547-9e48-c87f370267d1
 def _print_links() -> None:
     from ares_setup import ui
     c = ui.C(on=sys.stdout.isatty())
-    report = (RUN / "penetration_test_report.md").resolve()
-    manifest = (RUN / "ares.provenance.json").resolve()
+    md_report = (RUN / "penetration_test_report.md").resolve()
+    html_report = (HOME / "ares_report.html").resolve()
     print("\n" + c.orange(c.bold("── cascade ──")))
     print("  " + c.gray("triage   ") + c.cyan("Qwen3.5 (14B)") + c.gray("            recon · crawl · map"))
     print("  " + c.gray("validate ") + c.cyan("Qwen3.6-27B-OBLITERATED") + c.gray("  confirm · PoC · report"))
     print("\n" + c.orange(c.bold("── rapport ──")))
-    print("  " + c.bold("📄 local   ") + c.cyan(str(report)))
-    print("  " + c.gray("   ouvrir : ") + c.cyan(f"file://{report}"))
-    print("  " + c.bold("🔗 en ligne") + c.cyan(f" {DEMO_URL}") + c.gray("  (partageable)"))
-    print("  " + c.bold("🔍 vérifier") + c.gray(f"  ares verify {RUN}"))
-    # offer to open the local report (macOS/Linux) when interactive
+    print("  " + c.bold("📄 rapport  ") + c.cyan(str(html_report)) + c.gray("  (beau, local, hors-ligne)"))
+    print("  " + c.gray("   markdown : ") + c.cyan(str(md_report)))
+    print("  " + c.bold("🔍 vérifier ") + c.gray(f" ares verify {RUN}"))
+    print("  " + c.gray("   (lien web partageable : ") + c.gray(DEMO_URL + ")"))
+    # offer to open the LOCAL html report (no cloud, no login) when interactive
     if sys.stdout.isatty():
         try:
             ans = input(c.orange("\n  ouvrir le rapport maintenant ? [Y/n] ")).strip().lower()
@@ -127,8 +127,8 @@ def _print_links() -> None:
         if ans in ("", "y", "yes", "o", "oui"):
             import subprocess as _sp
             opener = "open" if sys.platform == "darwin" else "xdg-open"
-            _sp.run([opener, str(report)], check=False)
-            _sp.run([opener, DEMO_URL], check=False)
+            target = html_report if html_report.exists() else md_report
+            _sp.run([opener, str(target)], check=False)
 
 
 if __name__ == "__main__":

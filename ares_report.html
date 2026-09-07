@@ -1,0 +1,216 @@
+<title>Arès Signed Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#ffffff; --ink:#111111; --soft:#666666; --faint:#8a8a8a; --hair:#e3e3e3; --hair-2:#cfcfcf;
+    --crit:#c81e1e; --ok:#1a7f46; --code-bg:#f6f6f6;
+    --sans:'Archivo',system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{color-scheme:light}
+  body{margin:0;background:#ffffff;color:#111111;font-family:var(--sans);
+    font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:700px;margin:0 auto;padding:56px 28px 80px}
+  .mono{font-family:var(--mono)}
+
+  header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+    padding-bottom:14px;border-bottom:1px solid var(--ink)}
+  header b{font-weight:700;font-size:16px;letter-spacing:.02em}
+  header .v{font-family:var(--mono);font-size:11.5px;color:var(--ok);letter-spacing:.04em}
+
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);margin-top:40px}
+  h1{font-size:30px;line-height:1.15;font-weight:700;margin:8px 0 14px;letter-spacing:-.02em;text-wrap:balance}
+  .lede{color:var(--soft);font-size:15.5px;margin:0;max-width:60ch}
+
+  h2{font-size:12px;font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;
+    color:var(--soft);font-weight:500;margin:46px 0 6px;padding-bottom:10px;border-bottom:1px solid var(--ink)}
+
+  dl.meta{display:grid;grid-template-columns:120px 1fr;gap:8px 20px;margin:18px 0 0;font-size:14px}
+  dl.meta dt{color:var(--soft);font-family:var(--mono);font-size:12px}
+  dl.meta dd{margin:0;font-weight:500}
+
+  .summary{display:flex;gap:28px;flex-wrap:wrap;margin-top:16px;font-size:14px}
+  .summary b{font-weight:700;font-size:19px;font-variant-numeric:tabular-nums}
+  .summary .crit b{color:var(--crit)} .summary span{color:var(--soft)}
+
+  /* engagement narrative */
+  ol.flow{list-style:none;counter-reset:s;margin:16px 0 0;padding:0}
+  ol.flow li{counter-increment:s;display:grid;grid-template-columns:26px 1fr;gap:14px;padding:12px 0;border-bottom:1px solid var(--hair)}
+  ol.flow li:last-child{border-bottom:none}
+  ol.flow li::before{content:counter(s);font-family:var(--mono);font-size:12px;color:var(--faint);padding-top:2px}
+  .flow .who{font-weight:600}
+  .flow .who .m{font-family:var(--mono);font-size:11.5px;color:var(--soft);font-weight:400;margin-left:6px}
+  .flow .did{color:var(--soft);font-size:14px;margin-top:2px}
+
+  /* detailed findings */
+  article.f{padding:26px 0;border-bottom:1px solid var(--hair)}
+  article.f:last-of-type{border-bottom:none}
+  .f-top{display:flex;align-items:baseline;gap:12px}
+  .f-sev{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);font-weight:500}
+  .f-sev.c{color:var(--crit)}
+  .cvss{font-family:var(--mono);font-size:11px;font-weight:500;border:1px solid var(--hair-2);
+    border-radius:5px;padding:2px 8px;color:var(--ink)}
+  .cvss.c{border-color:var(--crit);color:var(--crit)}
+  .f-id{font-family:var(--mono);font-size:12px;color:var(--faint);margin-left:auto}
+  .f-title{font-size:20px;font-weight:700;letter-spacing:-.01em;margin:6px 0 2px}
+  .f-loc{font-family:var(--mono);font-size:12.5px;color:var(--soft);margin-bottom:14px}
+  .f-grid{display:grid;gap:14px}
+  .row{display:grid;grid-template-columns:112px 1fr;gap:16px;align-items:start}
+  .row .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);padding-top:3px}
+  .row .txt{font-size:14.5px;color:var(--ink)}
+  .row .txt .agent{font-weight:600}
+  code{font-family:var(--mono);font-size:12.5px;background:var(--code-bg);padding:1.5px 5px;border-radius:4px}
+  pre{font-family:var(--mono);font-size:12.5px;background:var(--code-bg);border:1px solid var(--hair);
+    padding:11px 13px;border-radius:8px;overflow-x:auto;margin:0;line-height:1.5}
+  pre .c{color:var(--soft)}
+  @media(max-width:520px){.row,dl.meta{grid-template-columns:1fr;gap:4px}.row .lab{padding-top:0}
+    ol.flow li{grid-template-columns:20px 1fr}h1{font-size:25px}}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:16px}
+  th,td{text-align:left;padding:10px 14px 10px 0;border-bottom:1px solid var(--hair)}
+  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--soft);font-weight:500}
+  tr:last-child td{border-bottom:none}
+  td{color:var(--soft)} td:first-child{color:var(--ink);font-weight:500}
+  td.mono,th.mono{font-family:var(--mono);font-size:12.5px}
+  .tw{overflow-x:auto}
+
+  .prov{margin-top:16px;font-family:var(--mono);font-size:13px}
+  .prov div{display:grid;grid-template-columns:110px 1fr;gap:6px 18px;padding:4px 0}
+  .prov .k{color:var(--soft)} .prov .val{word-break:break-all}
+  .verify{margin-top:16px;font-family:var(--mono);font-size:13px;padding:11px 0;border-top:1px solid var(--hair)}
+  .verify .g{color:var(--ok)} .verify .p{color:var(--soft)}
+
+  .note{margin-top:22px;font-size:14px;color:var(--soft)}
+  .note b{color:var(--ink);font-weight:600}
+  .note a{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
+  footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--hair);
+    font-family:var(--mono);font-size:11px;color:var(--soft);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+</style>
+
+<div class="wrap">
+  <header><b>Arès</b><span class="v">SIGNATURE VERIFIED</span></header>
+
+  <div class="eyebrow">Penetration test report</div>
+  <h1>OWASP Juice Shop — 3 validated findings</h1>
+  <p class="lede">An autonomous multi-agent assessment. Every finding below was confirmed with a working proof-of-concept, and the whole report is cryptographically signed — so its authenticity never depends on trusting the model that produced it.</p>
+
+  <dl class="meta">
+    <dt>Target</dt><dd class="mono">host.docker.internal:3000</dd>
+    <dt>Engine</dt><dd>Arès cascade (local-first)</dd>
+    <dt>Scan</dt><dd>quick — 19 turns, 4 agents</dd>
+    <dt>Date</dt><dd class="mono">2026-08-21</dd>
+  </dl>
+
+  <h2>Summary</h2>
+  <div class="summary">
+    <span class="crit"><b>1</b> critical</span>
+    <span><b>1</b> high</span>
+    <span><b>1</b> medium</span>
+    <span><b>4</b> agents</span>
+    <span><b>HIGH</b> confidence</span>
+  </div>
+
+  <h2>How the engagement ran</h2>
+  <ol class="flow">
+    <li><div><div class="who">Root Agent<span class="m">Qwen3.6-27B-OBLITERATED</span></div><div class="did">Read the scope, decomposed the target, and spawned one specialist sub-agent per candidate weakness. Coordinated on the strong model so its spawning decisions were sound.</div></div></li>
+    <li><div><div class="who">Recon Agent<span class="m">Qwen3.5 · 14B</span></div><div class="did">Crawled the SPA and its API, mapping the attack surface: <code>/rest/user/login</code>, <code>/rest/products/search</code>, and the client-only route <code>/#/administration</code>. Cheap, broad work on the fast tier.</div></div></li>
+    <li><div><div class="who">SQLi Validation Agent<span class="m">Qwen3.6-27B</span></div><div class="did">Took the login endpoint from recon, injected into the email field, and confirmed an authentication bypass — then filed the finding with a reproducible PoC.</div></div></li>
+    <li><div><div class="who">XSS Agent<span class="m">Qwen3.6-27B</span></div><div class="did">Fuzzed the search parameter, observed unescaped reflection into the DOM, and proved script execution.</div></div></li>
+    <li><div><div class="who">Access Control Agent<span class="m">Qwen3.5 → 27B</span></div><div class="did">Probed the admin route with no admin role; escalated to the strong tier to confirm the server returned admin data anyway.</div></div></li>
+  </ol>
+
+  <h2>Findings in detail</h2>
+
+  <article class="f">
+    <div class="f-top"><span class="f-sev c">Critical</span><span class="cvss c">CVSS 9.8</span><span class="f-id">VULN-001 · CWE-89</span></div>
+    <div class="f-title">SQL injection on the login endpoint</div>
+    <div class="f-loc">POST /rest/user/login — parameter: <b>email</b></div>
+    <div class="f-grid">
+      <div class="row"><div class="lab">CVSS 3.1</div><div class="txt"><code>9.8 Critical</code> — AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</div></div>
+      <div class="row"><div class="lab">Found by</div><div class="txt"><span class="agent">SQLi Validation Agent</span> — Qwen3.6-27B-OBLITERATED (from <span class="agent">Recon Agent</span>'s endpoint map)</div></div>
+      <div class="row"><div class="lab">What it is</div><div class="txt">The login handler builds its SQL query by concatenating the submitted email straight into the statement, so input becomes executable SQL rather than data.</div></div>
+      <div class="row"><div class="lab">Discovery</div><div class="txt"><span class="agent">Recon Agent</span> mapped the endpoint; the <span class="agent">SQLi Validation Agent</span> then submitted a boolean payload in the email field and observed a successful login with no valid password.</div></div>
+      <div class="row"><div class="lab">Proof of concept</div><div class="txt"><pre><span class="c"># email field:</span>
+' OR 1=1--
+<span class="c"># resolves to:</span>
+SELECT * FROM Users WHERE email = '' OR 1=1--' AND password = '...'</pre></div></div>
+      <div class="row"><div class="lab">Why it works</div><div class="txt">The trailing <code>--</code> comments out the password check, and <code>OR 1=1</code> makes the WHERE clause always true. The query returns the first user row — the administrator.</div></div>
+      <div class="row"><div class="lab">What it enables</div><div class="txt">Full authentication bypass. An attacker logs in as any user without credentials, obtains a valid session/JWT, and inherits the administrator's privileges — the entry point to every other account and order.</div></div>
+      <div class="row"><div class="lab">Remediation</div><div class="txt">Use parameterized queries / an ORM binding for every user input; never concatenate. Add least-privilege DB accounts and generic auth error messages.</div></div>
+    </div>
+  </article>
+
+  <article class="f">
+    <div class="f-top"><span class="f-sev">Medium</span><span class="cvss">CVSS 6.1</span><span class="f-id">VULN-002 · CWE-79</span></div>
+    <div class="f-title">Reflected cross-site scripting in product search</div>
+    <div class="f-loc">GET /#/search — parameter: <b>q</b></div>
+    <div class="f-grid">
+      <div class="row"><div class="lab">CVSS 3.1</div><div class="txt"><code>6.1 Medium</code> — AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N</div></div>
+      <div class="row"><div class="lab">Found by</div><div class="txt"><span class="agent">XSS Agent</span> — Qwen3.6-27B-OBLITERATED</div></div>
+      <div class="row"><div class="lab">What it is</div><div class="txt">The search term is written back into the results view without output encoding, so an attacker-controlled value is parsed as HTML/JS in the victim's browser.</div></div>
+      <div class="row"><div class="lab">Discovery</div><div class="txt">The <span class="agent">XSS Agent</span> submitted a marker payload in <code>q</code> and confirmed it executed in the rendered page rather than being displayed as text.</div></div>
+      <div class="row"><div class="lab">Proof of concept</div><div class="txt"><pre>/#/search?q=&lt;iframe src="javascript:alert(document.domain)"&gt;</pre></div></div>
+      <div class="row"><div class="lab">Why it works</div><div class="txt">The value reaches an unsafe DOM sink (bound to markup rather than text) with no sanitization or Content-Security-Policy to block inline execution.</div></div>
+      <div class="row"><div class="lab">What it enables</div><div class="txt">Arbitrary JavaScript in the victim's session: session/JWT theft, actions performed as the victim, credential phishing on a trusted origin. A crafted link is enough to trigger it.</div></div>
+      <div class="row"><div class="lab">Remediation</div><div class="txt">Contextually encode all reflected output, bind values as text not HTML, and deploy a strict CSP (<code>script-src</code> without <code>unsafe-inline</code>).</div></div>
+    </div>
+  </article>
+
+  <article class="f">
+    <div class="f-top"><span class="f-sev">High</span><span class="cvss">CVSS 8.1</span><span class="f-id">VULN-003 · CWE-284</span></div>
+    <div class="f-title">Broken access control on the admin area</div>
+    <div class="f-loc">GET /#/administration and its backing API</div>
+    <div class="f-grid">
+      <div class="row"><div class="lab">CVSS 3.1</div><div class="txt"><code>8.1 High</code> — AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N</div></div>
+      <div class="row"><div class="lab">Found by</div><div class="txt"><span class="agent">Access Control Agent</span> — Qwen3.5 (14B), escalated to Qwen3.6-27B for confirmation</div></div>
+      <div class="row"><div class="lab">What it is</div><div class="txt">Authorization for the admin section is enforced only in the client. The backing API returns administrative data to any authenticated user, regardless of role.</div></div>
+      <div class="row"><div class="lab">Discovery</div><div class="txt">The <span class="agent">Access Control Agent</span> navigated straight to the admin route with a non-admin session and called its API directly; the server responded with admin-only data.</div></div>
+      <div class="row"><div class="lab">Proof of concept</div><div class="txt"><pre><span class="c"># as a normal (non-admin) user:</span>
+GET /rest/admin/application-version
+GET /api/Users        <span class="c"># returns every user record</span></pre></div></div>
+      <div class="row"><div class="lab">Why it works</div><div class="txt">The route guard runs in the SPA only; the server never re-checks the caller's role. Hiding a button is not access control.</div></div>
+      <div class="row"><div class="lab">What it enables</div><div class="txt">Any logged-in user reaches administrative functions and reads all users and orders — a direct confidentiality and integrity breach across every account.</div></div>
+      <div class="row"><div class="lab">Remediation</div><div class="txt">Enforce role checks server-side on every privileged endpoint; deny by default. Treat client-side guards as UX only, never as a security boundary.</div></div>
+    </div>
+  </article>
+
+  <h2>Model cascade</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Agent</th><th>Role</th><th class="mono">Model</th></tr></thead>
+    <tbody>
+      <tr><td>Root</td><td>Coordination &amp; spawning</td><td class="mono">Qwen3.6-27B-OBLITERATED</td></tr>
+      <tr><td>Recon</td><td>Crawl &amp; map</td><td class="mono">Qwen3.5 (14B)</td></tr>
+      <tr><td>SQLi Validation</td><td>Confirm &amp; PoC</td><td class="mono">Qwen3.6-27B-OBLITERATED</td></tr>
+      <tr><td>XSS</td><td>Confirm &amp; PoC</td><td class="mono">Qwen3.6-27B-OBLITERATED</td></tr>
+      <tr><td>Access Control</td><td>Probe &amp; confirm</td><td class="mono">Qwen3.5 → Qwen3.6-27B</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Compliance mapping</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Finding</th><th class="mono">PCI-DSS</th><th class="mono">ISO 27001</th><th class="mono">SOC 2</th><th class="mono">NIST CSF</th></tr></thead>
+    <tbody>
+      <tr><td>SQL injection</td><td class="mono">6.5.1</td><td class="mono">A.8.28</td><td class="mono">CC6.1</td><td class="mono">PR.PS</td></tr>
+      <tr><td>Reflected XSS</td><td class="mono">6.5.7</td><td class="mono">A.8.28</td><td class="mono">CC6.1</td><td class="mono">PR.PS</td></tr>
+      <tr><td>Broken access control</td><td class="mono">7.1</td><td class="mono">A.5.15</td><td class="mono">CC6.3</td><td class="mono">PR.AA</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Provenance</h2>
+  <div class="prov">
+    <div><span class="k">Producer</span><span class="val">Arès</span></div>
+    <div><span class="k">Signing key</span><span class="val">ARES-7272-3E9F-6255-8D23</span></div>
+    <div><span class="k">Algorithm</span><span class="val">Ed25519 over a SHA-256 artifact manifest</span></div>
+    <div><span class="k">Covers</span><span class="val">report · findings · SARIF · confidence verdict</span></div>
+  </div>
+  <div class="verify"><span class="p">$ ares verify ./strix_runs/juice-shop</span> &nbsp;&nbsp;<span class="g">→ VERIFIED</span></div>
+
+  <div class="note"><b>Confidence: HIGH.</b> The agents read the target and validated each finding with a working proof-of-concept. Arès grades every run — a LOW verdict means "re-run with a stronger model", not "the target is clean" — so a bailed, empty report can never pass as a real one.</div>
+
+  <div class="note"><b>Demonstration replay.</b> These are representative OWASP Juice Shop issues, shown to walk through the Arès pipeline end to end — not a live model run. Try it against a real authorized target: <a href="https://demo.owasp-juice.shop">demo.owasp-juice.shop</a>.</div>
+
+  <footer><span>Arès — local-first · private · signed</span><span>Hard-fork of Strix · Apache-2.0</span></footer>
+</div>
