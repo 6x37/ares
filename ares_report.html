@@ -33,6 +33,17 @@
   h2{font-size:12px;font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;
     color:var(--soft);font-weight:500;margin:46px 0 6px;padding-bottom:10px;border-bottom:1px solid var(--ink)}
 
+  .score{display:flex;gap:22px;align-items:center;margin-top:26px;padding:20px 22px;
+    border:1px solid var(--hair-2);border-radius:12px}
+  .score-n{flex:none;font-family:var(--mono);line-height:1;display:flex;align-items:baseline;gap:2px}
+  .score-n b{font-size:44px;font-weight:700;color:var(--crit)} .score-n span{font-size:16px;color:var(--faint)}
+  .score-tag{font-weight:600;font-size:15px;color:var(--crit)}
+  .score-sub{color:var(--soft);font-size:13.5px;margin:4px 0 9px;max-width:56ch}
+  .score-sub b{color:var(--ink);font-weight:500}
+  .score-bar{height:5px;background:var(--hair);border-radius:3px;overflow:hidden}
+  .score-bar i{display:block;height:100%;background:var(--crit)}
+  .f-refs a{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
+  .f-refs a+a{margin-left:14px}
   dl.meta{display:grid;grid-template-columns:120px 1fr;gap:8px 20px;margin:18px 0 0;font-size:14px}
   dl.meta dt{color:var(--soft);font-family:var(--mono);font-size:12px}
   dl.meta dd{margin:0;font-weight:500}
@@ -115,6 +126,15 @@
   <h1>OWASP Juice Shop — 3 validated findings</h1>
   <p class="lede">An autonomous multi-agent assessment. Every finding below was confirmed with a working proof-of-concept, and the whole report is cryptographically signed — so its authenticity never depends on trusting the model that produced it.</p>
 
+  <div class="score">
+    <div class="score-n"><b>88</b><span>/100</span></div>
+    <div class="score-meta">
+      <div class="score-tag">Risk exposure — Critical</div>
+      <div class="score-sub">Highest severity <b>Critical</b> · top CVSS <b>9.8</b> · exploitable <b>unauthenticated</b>, no user interaction. Higher score = greater exposure.</div>
+      <div class="score-bar"><i style="width:88%"></i></div>
+    </div>
+  </div>
+
   <dl class="meta">
     <dt>Target</dt><dd class="mono">host.docker.internal:3000</dd>
     <dt>Engine</dt><dd>Arès cascade (local-first)</dd>
@@ -164,6 +184,7 @@ SELECT * FROM Users WHERE email = '' OR 1=1--' AND password = '...'</pre></div><
       <div class="row"><div class="lab">Why it works</div><div class="txt">The trailing <code>--</code> comments out the password check, and <code>OR 1=1</code> makes the WHERE clause always true. The query returns the first user row — the administrator.</div></div>
       <div class="row"><div class="lab">What it enables</div><div class="txt">Full authentication bypass. An attacker logs in as any user without credentials, obtains a valid session/JWT, and inherits the administrator's privileges — the entry point to every other account and order.</div></div>
       <div class="row"><div class="lab">Remediation</div><div class="txt">Use parameterized queries / an ORM binding for every user input; never concatenate. Add least-privilege DB accounts and generic auth error messages.</div></div>
+      <div class="row"><div class="lab">References</div><div class="txt f-refs"><a href="https://cwe.mitre.org/data/definitions/89.html">CWE-89</a><a href="https://owasp.org/Top10/A03_2021-Injection/">OWASP A03:2021 — Injection</a><a href="https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html">Prevention cheat sheet</a></div></div>
     </div>
   </article>
 
@@ -180,6 +201,7 @@ SELECT * FROM Users WHERE email = '' OR 1=1--' AND password = '...'</pre></div><
       <div class="row"><div class="lab">Why it works</div><div class="txt">The value reaches an unsafe DOM sink (bound to markup rather than text) with no sanitization or Content-Security-Policy to block inline execution.</div></div>
       <div class="row"><div class="lab">What it enables</div><div class="txt">Arbitrary JavaScript in the victim's session: session/JWT theft, actions performed as the victim, credential phishing on a trusted origin. A crafted link is enough to trigger it.</div></div>
       <div class="row"><div class="lab">Remediation</div><div class="txt">Contextually encode all reflected output, bind values as text not HTML, and deploy a strict CSP (<code>script-src</code> without <code>unsafe-inline</code>).</div></div>
+      <div class="row"><div class="lab">References</div><div class="txt f-refs"><a href="https://cwe.mitre.org/data/definitions/79.html">CWE-79</a><a href="https://owasp.org/Top10/A03_2021-Injection/">OWASP A03:2021 — Injection</a><a href="https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html">XSS prevention cheat sheet</a></div></div>
     </div>
   </article>
 
@@ -198,6 +220,7 @@ GET /api/Users        <span class="c"># returns every user record</span></pre></
       <div class="row"><div class="lab">Why it works</div><div class="txt">The route guard runs in the SPA only; the server never re-checks the caller's role. Hiding a button is not access control.</div></div>
       <div class="row"><div class="lab">What it enables</div><div class="txt">Any logged-in user reaches administrative functions and reads all users and orders — a direct confidentiality and integrity breach across every account.</div></div>
       <div class="row"><div class="lab">Remediation</div><div class="txt">Enforce role checks server-side on every privileged endpoint; deny by default. Treat client-side guards as UX only, never as a security boundary.</div></div>
+      <div class="row"><div class="lab">References</div><div class="txt f-refs"><a href="https://cwe.mitre.org/data/definitions/284.html">CWE-284</a><a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP A01:2021 — Broken Access Control</a><a href="https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html">Authorization cheat sheet</a></div></div>
     </div>
   </article>
 
