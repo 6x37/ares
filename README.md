@@ -37,6 +37,16 @@ That is its point. But be clear-eyed about the trade-off learned from real runs:
 - Every report is **signed and verifiable**, so its authenticity never rests on
   trusting the model — you can always tell a real result from a bailed one.
 
+## Demo mode — show it in 45 seconds
+
+```bash
+ares demo
+```
+Replays a full OWASP Juice Shop engagement through the real Arès watch console:
+live agent swarm with cascade routing, findings landing as they're validated,
+then confidence gate → Ed25519 signature → verify. Scripted for speed (no LLM/
+cloud) — it showcases the pipeline and UX, not a live autonomous scan.
+
 ## Just run `ares`
 
 One interactive hub — banner, live status, and every tool in one place:

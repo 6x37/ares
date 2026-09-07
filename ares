@@ -11,6 +11,7 @@ case "$cmd" in
   confidence|conf)exec python3 -m ares_setup.confidence "$@" ;;
   offline)        exec python3 -m ares_setup.offline "$@" ;;
   console|chat)   exec python3 ares_console.py "$@" ;;
+  demo)           exec python3 ares_demo.py "$@" ;;
   watch)          exec python3 ares_watch.py "$@" ;;
   sign|verify|keygen) exec python3 -m ares_provenance "$cmd" "$@" ;;
   help|-h|--help|"")
@@ -20,6 +21,7 @@ case "$cmd" in
     echo "  eval <model>     live STRIX-READY model eval"
     echo "  confidence <run> trust score of a finished scan"
     echo "  console          streaming local console"
+    echo "  demo             fast scripted showcase (~45s, for demos)"
     echo "  watch            live agent activity during a scan"
     echo "  offline <env>    air-gap audit"
     echo "  sign|verify <run>  Ed25519 report provenance"
