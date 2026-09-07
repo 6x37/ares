@@ -41,6 +41,18 @@
   .summary b{font-weight:700;font-size:19px;font-variant-numeric:tabular-nums}
   .summary .crit b{color:var(--crit)} .summary span{color:var(--soft)}
 
+  .chain{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:16px}
+  .chain .node{font-family:var(--mono);font-size:12px;border:1px solid var(--hair-2);
+    border-radius:6px;padding:5px 10px;white-space:nowrap}
+  .chain .node.crit{border-color:var(--crit);color:var(--crit)}
+  .chain .arr{color:var(--faint);font-family:var(--mono)}
+  ol.remed{list-style:none;counter-reset:r;margin:16px 0 0;padding:0}
+  ol.remed li{counter-increment:r;display:grid;grid-template-columns:26px 1fr auto;gap:14px;
+    align-items:baseline;padding:12px 0;border-bottom:1px solid var(--hair)}
+  ol.remed li:last-child{border-bottom:none}
+  ol.remed li::before{content:counter(r);font-family:var(--mono);font-size:12px;color:var(--crit);font-weight:600}
+  .remed .what{font-weight:600} .remed .what span{font-weight:400;color:var(--soft);font-size:13.5px}
+  .remed .eff{font-family:var(--mono);font-size:11px;color:var(--soft);white-space:nowrap}
   /* engagement narrative */
   ol.flow{list-style:none;counter-reset:s;margin:16px 0 0;padding:0}
   ol.flow li{counter-increment:s;display:grid;grid-template-columns:26px 1fr;gap:14px;padding:12px 0;border-bottom:1px solid var(--hair)}
@@ -119,6 +131,12 @@
     <span><b>HIGH</b> confidence</span>
   </div>
 
+  <h2>Key findings</h2>
+  <p class="lede" style="max-width:64ch;color:var(--ink)">The application can be fully compromised by an unauthenticated attacker. A SQL injection on the login form grants administrator access without credentials, and a separate broken-access-control flaw means any logged-in user can already reach admin data server-side — so the two reinforce each other. A reflected XSS adds session-theft against individual users. <b>Overall risk: Critical.</b></p>
+  <div class="chain">
+    <span class="node crit">SQLi login</span><span class="arr">→</span><span class="node">admin session</span><span class="arr">→</span><span class="node">all users &amp; orders</span><span class="arr">+</span><span class="node">XSS session theft</span>
+  </div>
+
   <h2>How the engagement ran</h2>
   <ol class="flow">
     <li><div><div class="who">Root Agent<span class="m">Qwen3.6-27B-OBLITERATED</span></div><div class="did">Read the scope, decomposed the target, and spawned one specialist sub-agent per candidate weakness. Coordinated on the strong model so its spawning decisions were sound.</div></div></li>
@@ -182,6 +200,14 @@ GET /api/Users        <span class="c"># returns every user record</span></pre></
       <div class="row"><div class="lab">Remediation</div><div class="txt">Enforce role checks server-side on every privileged endpoint; deny by default. Treat client-side guards as UX only, never as a security boundary.</div></div>
     </div>
   </article>
+
+  <h2>Remediation — priority order</h2>
+  <ol class="remed">
+    <li><div class="what">Parameterize the login query <span>— closes the auth bypass (VULN-001)</span></div><div class="eff">effort: low · fix first</div></li>
+    <li><div class="what">Enforce server-side role checks <span>— stops admin data exposure (VULN-003)</span></div><div class="eff">effort: medium</div></li>
+    <li><div class="what">Encode output + add a strict CSP <span>— neutralizes reflected XSS (VULN-002)</span></div><div class="eff">effort: low</div></li>
+    <li><div class="what">Add regression tests &amp; re-scan <span>— confirm each fix, track over time</span></div><div class="eff">effort: low</div></li>
+  </ol>
 
   <h2>Model cascade</h2>
   <div class="tw"><table>
