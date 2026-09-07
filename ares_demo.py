@@ -98,7 +98,34 @@ def main() -> int:
     rc = subprocess.run([sys.executable, str(HOME / "ares_watch.py"),
                          "--run", str(RUN), "--poll", "0.4"]).returncode
     t.join(timeout=2)
+    _print_links()
     return rc
+
+
+DEMO_URL = "https://claude.ai/code/artifact/f4b16bbe-6c84-4547-9e48-c87f370267d1"
+
+
+def _print_links() -> None:
+    from ares_setup import ui
+    c = ui.C(on=sys.stdout.isatty())
+    report = (RUN / "penetration_test_report.md").resolve()
+    manifest = (RUN / "ares.provenance.json").resolve()
+    print("\n" + c.orange(c.bold("── rapport ──")))
+    print("  " + c.bold("📄 local   ") + c.cyan(str(report)))
+    print("  " + c.gray("   ouvrir : ") + c.cyan(f"file://{report}"))
+    print("  " + c.bold("🔗 en ligne") + c.cyan(f" {DEMO_URL}") + c.gray("  (partageable)"))
+    print("  " + c.bold("🔍 vérifier") + c.gray(f"  ares verify {RUN}"))
+    # offer to open the local report (macOS/Linux) when interactive
+    if sys.stdout.isatty():
+        try:
+            ans = input(c.orange("\n  ouvrir le rapport maintenant ? [Y/n] ")).strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            ans = "n"
+        if ans in ("", "y", "yes", "o", "oui"):
+            import subprocess as _sp
+            opener = "open" if sys.platform == "darwin" else "xdg-open"
+            _sp.run([opener, str(report)], check=False)
+            _sp.run([opener, DEMO_URL], check=False)
 
 
 if __name__ == "__main__":
