@@ -7,8 +7,6 @@ from typing import Any
 
 from agents.usage import Usage, deserialize_usage, serialize_usage
 
-from strix.report.pricing import resolve_litellm_model
-
 
 logger = logging.getLogger(__name__)
 
@@ -20,9 +18,7 @@ class LLMUsageLedger:
         self._total_usage = Usage()
         self._agent_usage: dict[str, Usage] = {}
         self._agent_metadata: dict[str, dict[str, str]] = {}
-        self._observed_cost = 0.0
-        self._estimated_cost = 0.0
-        self._has_observed_cost = False
+        self._total_cost = 0.0
         # When True, tokens are still tracked but cost stays $0 — the run is on a
         # model subscription, so there is no metered per-token charge to report.
         self.zero_cost = False
@@ -48,10 +44,10 @@ class LLMUsageLedger:
         if model:
             metadata["model"] = model
 
-        if not self.zero_cost:
+        if not self.zero_cost and not _is_litellm_routed(model):
             estimated = _estimate_litellm_cost(usage, model)
             if estimated:
-                self._estimated_cost += estimated
+                self._total_cost += estimated
 
         return True
 
@@ -59,18 +55,15 @@ class LLMUsageLedger:
         if self.zero_cost:
             return
         if isinstance(cost, int | float) and cost > 0:
-            self._observed_cost += float(cost)
-            self._has_observed_cost = True
+            self._total_cost += float(cost)
 
     @property
     def total_cost(self) -> float:
-        if self.zero_cost:
-            return 0.0
-        return _round_cost(self._observed_cost if self._has_observed_cost else self._estimated_cost)
+        return _round_cost(self._total_cost)
 
     def to_record(self) -> dict[str, Any]:
         record = serialize_usage(self._total_usage)
-        record["cost"] = self.total_cost
+        record["cost"] = _round_cost(self._total_cost)
         record["agents"] = []
 
         agent_tokens = {aid: _resolve_total_tokens(u) for aid, u in self._agent_usage.items()}
@@ -79,7 +72,7 @@ class LLMUsageLedger:
             usage = self._agent_usage[agent_id]
             metadata = self._agent_metadata.get(agent_id, {})
             agent_cost = (
-                self.total_cost * (agent_tokens[agent_id] / total_tokens) if total_tokens else 0.0
+                self._total_cost * (agent_tokens[agent_id] / total_tokens) if total_tokens else 0.0
             )
 
             agent_record = serialize_usage(usage)
@@ -99,9 +92,7 @@ class LLMUsageLedger:
         self._total_usage = Usage()
         self._agent_usage.clear()
         self._agent_metadata.clear()
-        self._observed_cost = 0.0
-        self._estimated_cost = 0.0
-        self._has_observed_cost = False
+        self._total_cost = 0.0
 
         if not isinstance(raw_usage, dict):
             return
@@ -112,9 +103,7 @@ class LLMUsageLedger:
             logger.exception("Failed to hydrate aggregate llm_usage from run.json")
             self._total_usage = Usage()
 
-        persisted_cost = _float_or_zero(raw_usage.get("cost"))
-        self._observed_cost = persisted_cost
-        self._estimated_cost = persisted_cost
+        self._total_cost = _float_or_zero(raw_usage.get("cost"))
 
         for raw_agent in raw_usage.get("agents") or []:
             if not isinstance(raw_agent, dict):
@@ -145,6 +134,15 @@ def _resolve_total_tokens(usage: Usage) -> int:
     prompt = _int_or_zero(getattr(usage, "input_tokens", 0))
     completion = _int_or_zero(getattr(usage, "output_tokens", 0))
     return prompt + completion
+
+
+def _is_litellm_routed(model: str | None) -> bool:
+    if not model:
+        return False
+    name = model.strip().lower()
+    if "/" not in name:
+        return False
+    return not name.startswith("openai/")
 
 
 def _usage_has_activity(usage: Usage) -> bool:
@@ -203,23 +201,24 @@ def _estimate_litellm_entry_cost(entry: Any, model: str) -> float | None:
 
     candidates = [model]
     if "/" in model:
-        candidates.append(model.rsplit("/", 1)[-1])
+        candidates.append(model.split("/", 1)[-1])
 
+    cost: Any = None
     for candidate in candidates:
-        resolved = resolve_litellm_model(candidate)
-        if not resolved:
-            continue
         try:
             cost = completion_cost(
-                completion_response={"model": resolved, "usage": usage_payload},
-                model=resolved,
+                completion_response={"model": candidate, "usage": usage_payload},
+                model=model,
             )
+            break
         except Exception:  # nosec B112  # noqa: BLE001, S112
             continue
-        if cost > 0:
-            return float(cost)
-    logger.debug("LiteLLM cost estimate unavailable for model %s", model)
-    return None
+
+    if cost is None:
+        logger.debug("LiteLLM cost estimate unavailable for model %s", model)
+        return None
+
+    return cost if isinstance(cost, int | float) and cost >= 0 else None
 
 
 def _litellm_model_name(model: str | None) -> str | None:

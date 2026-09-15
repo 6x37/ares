@@ -10,11 +10,11 @@ pairing so the trimmed history is still valid provider input.
 from __future__ import annotations
 
 import logging
-from functools import cache
 from typing import TYPE_CHECKING, Any
 
 from agents.model_settings import ModelSettings
 from agents.models.interface import ModelTracing
+from litellm.exceptions import BadRequestError, ContextWindowExceededError
 from openai.types.responses import ResponseOutputMessage, ResponseOutputText
 
 from strix.config import load_settings
@@ -63,18 +63,6 @@ _OVERFLOW_MARKERS = (
 )
 
 
-@cache
-def _overflow_error_types() -> tuple[type[BaseException], type[BaseException]]:
-    """``(ContextWindowExceededError, BadRequestError)``, imported on first use.
-
-    LiteLLM costs seconds to import, and nothing needs it until a model call is
-    actually made, so it stays off the launch path.
-    """
-    from litellm.exceptions import BadRequestError, ContextWindowExceededError
-
-    return ContextWindowExceededError, BadRequestError
-
-
 def is_context_overflow(exc: BaseException) -> bool:
     """Whether ``exc`` is a model context-window-overflow error.
 
@@ -82,10 +70,9 @@ def is_context_overflow(exc: BaseException) -> bool:
     OpenRouter branch raises a plain BadRequestError, so for that we fall back to
     matching the provider message.
     """
-    context_window_exceeded, bad_request = _overflow_error_types()
-    if isinstance(exc, context_window_exceeded):
+    if isinstance(exc, ContextWindowExceededError):
         return True
-    if isinstance(exc, bad_request):
+    if isinstance(exc, BadRequestError):
         msg = str(exc).lower()
         if any(x in msg for x in _OVERFLOW_EXCLUSIONS):
             return False
