@@ -6,6 +6,8 @@
 
 Runs entirely on your machine. Signs every report. Tells you when it can't be trusted.
 
+<img src="docs/demo.gif" alt="ares demo — a full OWASP Juice Shop engagement in 45 seconds" width="720">
+
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-43%20passing-brightgreen)]()
 [![Python](https://img.shields.io/badge/python-3.12%2B-blue)]()
