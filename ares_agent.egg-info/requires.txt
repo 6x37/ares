@@ -1,0 +1,17 @@
+cryptography>=41
+
+[engine]
+openai-agents[litellm]<0.20,>=0.19.0
+openai<3,>=2.45.0
+litellm
+pydantic>=2.11.3
+pydantic-settings>=2.13.0
+rich
+docker>=7.1.0
+requests>=2.32.0
+cvss>=3.2
+caido-sdk-client>=0.2.0
+reportlab>=4.0
+pypdf>=5.0
+cryptography<49,>=48.0.1
+pyyaml>=6.0

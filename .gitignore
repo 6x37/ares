@@ -7,3 +7,6 @@ __pycache__/
 *.pyc
 .ares/
 qa_*/
+dist/
+build/
+*.egg-info/

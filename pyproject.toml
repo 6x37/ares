@@ -22,7 +22,9 @@ engine = [
   "reportlab>=4.0", "pypdf>=5.0", "cryptography>=48.0.1,<49", "pyyaml>=6.0",
 ]
 
+# The wheel ships the Arès toolkit + the `ares` command. The (large, modified)
+# Strix engine is vendored in ares_engine/ and installed from source — see the
+# README quickstart — because it needs Python 3.12, its own heavy deps, and Docker.
 [tool.setuptools]
-packages = ["ares_setup", "ares_provenance", "strix"]
-package-dir = {"strix" = "ares_engine/strix"}
-py-modules = ["ares_console", "ares_watch"]
+packages = ["ares_setup", "ares_provenance"]
+py-modules = ["ares_console", "ares_watch", "ares_demo"]

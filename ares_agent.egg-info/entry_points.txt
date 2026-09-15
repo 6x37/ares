@@ -1,0 +1,2 @@
+[console_scripts]
+ares = ares_setup.home:home
