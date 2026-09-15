@@ -12,6 +12,24 @@ from . import (
 from .keys import PRIV_NAME, PUB_NAME
 
 
+def _trusted_keys(key_dir: Path) -> list:
+    """Keys Arès trusts by default: this deployment's own signing key, any keys
+    shipped in the repo's keys/ dir, and any in ~/.ares/trusted/."""
+    from .keys import load_public_key
+    out = []
+    candidates = [key_dir / PUB_NAME]
+    repo_keys = Path(__file__).resolve().parents[1] / "keys"
+    candidates += sorted(repo_keys.glob("*.pub.pem"))
+    candidates += sorted((Path.home() / ".ares" / "trusted").glob("*.pem"))
+    for c in candidates:
+        try:
+            if c.exists():
+                out.append(load_public_key(c))
+        except Exception:
+            continue
+    return out
+
+
 def _cmd_keygen(args: argparse.Namespace) -> int:
     key_dir = Path(args.key_dir)
     priv, pub = save_keypair(generate_keypair(), key_dir=key_dir)
@@ -36,12 +54,9 @@ def _cmd_sign(args: argparse.Namespace) -> int:
 
 
 def _cmd_verify(args: argparse.Namespace) -> int:
-    expected = None
-    if args.pubkey:
-        expected = load_public_key(Path(args.pubkey))
-    elif (Path(args.key_dir) / PUB_NAME).exists():
-        expected = load_public_key(Path(args.key_dir) / PUB_NAME)
-    result = verify_run(Path(args.run_dir), expected_public_key=expected)
+    expected = load_public_key(Path(args.pubkey)) if args.pubkey else None
+    trusted = _trusted_keys(Path(args.key_dir))
+    result = verify_run(Path(args.run_dir), expected_public_key=expected, trusted_keys=trusted)
     print(result.summary())
     return 0 if result.ok else 1
 

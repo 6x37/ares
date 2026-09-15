@@ -99,6 +99,11 @@ Each agent is routed to the right tier by role. All local tiers share one endpoi
 
 Tampering is always detectable; forging authenticity requires the private key.
 
+`ares verify` trusts, by default: your deployment's own signing key, the Arès
+release key shipped in [`keys/ares-release.pub.pem`](keys/ares-release.pub.pem)
+(fingerprint `ARES-2BC4-652E-E25F-6414`), and anything in `~/.ares/trusted/`. So official Arès
+artifacts verify out of the box, and your own reports verify against your key.
+
 **Confidence gate.** After a scan, Arès grades what the agents actually did — findings, tool actions, files read, give-up signals — and marks the run 🟢 HIGH / 🟡 OK / 🔴 LOW. A bailed, empty report can never pass as a real "clean".
 
 ## Architecture

@@ -75,3 +75,19 @@ def test_verify_message_distinguishes_trust(tmp_path):
     assert "INTACT" in verify_run(run).summary()
     pinned = verify_run(run, expected_public_key=load_public_key(keys / PUB_NAME))
     assert "VERIFIED" in pinned.summary() and pinned.ok
+
+
+def test_verify_trusted_key_set(tmp_path):
+    """A report signed by any key in the trusted set verifies as authentic."""
+    from ares_provenance import (generate_keypair, sign_run, verify_run)
+    run = tmp_path / "run"; (run / "vulnerabilities").mkdir(parents=True)
+    (run / "penetration_test_report.md").write_text("# r\n", encoding="utf-8")
+    (run / "vulnerabilities.json").write_text("[]", encoding="utf-8")
+    signer = generate_keypair()
+    sign_run(run, signer)
+    other = generate_keypair().public_key()
+    trusted = [other, signer.public_key()]           # signer is in the set
+    r = verify_run(run, trusted_keys=trusted)
+    assert r.ok and r.trusted_key and "VERIFIED" in r.summary()
+    r2 = verify_run(run, trusted_keys=[other])        # signer NOT in the set
+    assert not r2.ok and r2.trusted_key is False

@@ -72,6 +72,7 @@ def verify_run(
     run_dir: Path,
     *,
     expected_public_key: Ed25519PublicKey | None = None,
+    trusted_keys: "list[Ed25519PublicKey] | None" = None,
 ) -> VerifyResult:
     manifest_path = run_dir / MANIFEST_NAME
     if not manifest_path.exists():
@@ -106,8 +107,11 @@ def verify_run(
 
     # --- key trust (optional pinning) ---
     trusted_key: bool | None = None
+    trust_set = list(trusted_keys or [])
     if expected_public_key is not None:
-        trusted_key = _same_key(embedded_key, expected_public_key)
+        trust_set.append(expected_public_key)
+    if trust_set:
+        trusted_key = any(_same_key(embedded_key, k) for k in trust_set)
 
     result = VerifyResult(
         ok=False,

@@ -19,4 +19,4 @@ appreciated.
 Reports are signed with Ed25519. `ares verify` reports `VERIFIED` **only** when
 the signature is valid *and* the key is pinned to a trusted Arès key; otherwise
 it reports `INTACT` (integrity only). Do not treat an unpinned `INTACT` result as
-proof of authorship. See the README for the full model.
+proof of authorship. See the README for the full model. The Arès release key fingerprint is `ARES-2BC4-652E-E25F-6414` (public key in `keys/ares-release.pub.pem`).
