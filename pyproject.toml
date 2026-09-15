@@ -3,7 +3,7 @@ name = "ares-agent"
 version = "0.1.0"
 description = "Local-first, verifiable autonomous AI pentester — a hard-fork of Strix"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 license = "Apache-2.0"
 authors = [{ name = "Ziad Maslah" }]
 dependencies = ["cryptography>=41"]

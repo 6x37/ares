@@ -47,17 +47,23 @@ Reliability over raw power.
 ## Quickstart
 
 ```bash
-# 1. install the engine (Python 3.12) and the Arès package
-uv tool install --python 3.12 strix-agent
-bash ares_engine/apply.sh          # or: pip install -e .  (vendored engine)
+# 1. clone and install (Python 3.12) — vendored engine + the `ares` command
+git clone https://github.com/nuisant/ares && cd ares
+pip install -e ".[engine]"          # or: uv pip install -e ".[engine]"
 
 # 2. set up a local model, guided — detects your hardware, picks & pulls a model
+#    (needs Ollama + Docker running)
 ares init
 
 # 3. see everything at a glance
 ares                                # interactive hub
 ares dashboard                      # hardware + local model catalog
+
+# 4. or just watch it work end to end (no LLM, no cloud)
+ares demo
 ```
+
+> Requires Python 3.12+, [Ollama](https://ollama.com), and Docker.
 
 ## The toolkit — one entry point
 
