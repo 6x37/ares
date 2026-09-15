@@ -1,174 +1,117 @@
+<div align="center">
+
 # Arès
 
-Local-first, **verifiable** autonomous AI pentester — a hard-fork of
-[Strix](https://github.com/usestrix/strix) (Apache-2.0).
+**A local-first, verifiable, autonomous AI pentester.**
 
-What Arès adds over Strix:
-- 🔒 **Signed & verifiable reports** — every finding is cryptographically signed (Ed25519).
-- 🏠 **Local-first** — guided local-LLM setup, runs fully offline.
-- 🛡️ **Safety guardrails** — scope enforcement + human approval gates (roadmap).
+Runs entirely on your machine. Signs every report. Tells you when it can't be trusted.
 
-See [ROADMAP.md](ROADMAP.md) for the full differentiation plan.
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-43%20passing-brightgreen)]()
+[![Python](https://img.shields.io/badge/python-3.12%2B-blue)]()
+[![Fork of Strix](https://img.shields.io/badge/hard--fork%20of-Strix-orange)](https://github.com/usestrix/strix)
 
-## `ares watch` — live A-to-Z visibility
+</div>
 
-Run alongside a scan to see the agent swarm work in real time — every agent
-spawn, tool action and finding, then the report being generated and signed:
+---
 
-```bash
-python3 ares_watch.py            # auto-detect the latest run under ./strix_runs
-python3 ares_watch.py --follow   # keep tailing after completion
-```
-
-Colour-codes each agent, streams findings as they land (severity-coloured), and
-on completion shows the report generation + Ed25519 signature.
-
-## Honest positioning — local ≠ frontier accuracy
-
-Arès is **local-first: private, offline, no API cost, no data leaving your machine.**
-That is its point. But be clear-eyed about the trade-off learned from real runs:
-
-- **Local models are for privacy and offline work, not maximum precision.** Small
-  quantized models can answer security questions well yet miss or hallucinate
-  findings when driving an autonomous agent loop.
-- For **high-stakes accuracy**, enable the hosted **escalate** tier (frontier model
-  on the validation agents only) — or at minimum, trust the **confidence gate**:
-  a 🔴 LOW result means "re-run stronger", not "the target is clean".
-- Every report is **signed and verifiable**, so its authenticity never rests on
-  trusting the model — you can always tell a real result from a bailed one.
-
-## Demo mode — show it in 45 seconds
+Arès is a hard-fork of [**Strix**](https://github.com/usestrix/strix) — the open-source multi-agent AI pentester by OmniSecure. Strix supplies the engine: a swarm of agents that do recon, exploit, and validate vulnerabilities on a target. Arès rebuilds the layer *around* it that a real engagement needs — **privacy, trust, and reliability**.
 
 ```bash
-ares demo
+ares demo      # 45-second showcase — no LLM, no cloud, no setup
 ```
-Replays a full OWASP Juice Shop engagement through the real Arès watch console:
-live agent swarm with cascade routing, findings landing as they're validated,
-then confidence gate → Ed25519 signature → verify. Scripted for speed (no LLM/
-cloud) — it showcases the pipeline and UX, not a live autonomous scan.
 
-## Just run `ares`
+## Why Arès, not just Strix
 
-One interactive hub — banner, live status, and every tool in one place:
+Strix is an excellent engine, but it is cloud-first and it trusts whatever the model produces. Arès closes both gaps.
+
+| | Strix | **Arès** |
+|---|:---:|:---:|
+| Runs fully local / offline | via config | **guided, first-class** |
+| Data leaves your machine | yes (cloud + telemetry) | **no — telemetry off by default** |
+| Signed, verifiable reports | — | **Ed25519, tamper-evident** |
+| Knows when a run is unreliable | — | **confidence gate (🟢/🔴)** |
+| Vets a model before wasting a scan | — | **model-eval (STRIX-READY)** |
+| One model for everything | yes | **cascade — fast triage, strong validation** |
+| Scope guardrails + kill-switch | partial | **allowlist, SSRF block, kill-switch** |
+
+## The honest pitch
+
+Arès is **local-first: private, offline, no API cost.** That is the point — and the trade-off is real:
+
+- Local models are for **privacy**, not maximum precision. A small model can answer a security question well yet miss or hallucinate a finding when driving an autonomous agent loop.
+- So Arès doesn't ask you to trust the model. It **grades every run** (a 🔴 LOW verdict means "re-run stronger", not "the target is clean"), **signs every report** (authenticity never rests on trust), and can **escalate the hard calls to a frontier model** — locally by default, cloud only if you opt in.
+
+Reliability over raw power.
+
+## Quickstart
 
 ```bash
-ares            # opens the hub (dashboard, setup, eval, console, run, watch…)
-ares dashboard  # or jump straight to any tool
-ares eval qwen3.5:latest
-ares console
+# 1. install the engine (Python 3.12) and the Arès package
+uv tool install --python 3.12 strix-agent
+bash ares_engine/apply.sh          # or: pip install -e .  (vendored engine)
+
+# 2. set up a local model, guided — detects your hardware, picks & pulls a model
+ares init
+
+# 3. see everything at a glance
+ares                                # interactive hub
+ares dashboard                      # hardware + local model catalog
 ```
 
-Install the shortcut once: `alias ares="/Users/z/Desktop/ares/ares"` in your shell rc.
+## The toolkit — one entry point
 
-## Dashboard — hardware + models at a glance
+Run `ares` for the hub, or call any tool directly:
 
-```bash
-python3 -m ares_setup.dashboard          # hardware + local model catalog
-python3 -m ares_setup.dashboard --eval   # + live STRIX-READY badges per model
+| Command | What it does |
+|---|---|
+| `ares init` | guided local-LLM setup (hardware → model → config) |
+| `ares dashboard` | hardware + model catalog, with STRIX-READY badges |
+| `ares eval <model>` | live test — is this model usable as an agent? |
+| `ares console` | streaming chat with the local engine |
+| `ares demo` | 45-second scripted showcase of a full engagement |
+| `ares watch` | live agent activity during a running scan |
+| `ares verify <run>` | check a report's Ed25519 signature |
+
+## How it works
+
+**Model cascade.** Cheap breadth on a fast model, decisive calls on a strong one:
+
+- **triage** → `Qwen3.5 (14B)` — recon, crawl, mapping
+- **validate** → `Qwen3.6-27B-OBLITERATED` — confirmation, PoC, reporting
+- **escalate** → a hosted frontier model, opt-in, off by default
+
+Each agent is routed to the right tier by role. All local tiers share one endpoint; only the model name changes.
+
+**Verifiable provenance.** Every run is signed with Ed25519 over a SHA-256 manifest of its artifacts. `ares verify` reports:
+
+- `VERIFIED` — signature valid **and** signed by a pinned, trusted Arès key (authentic)
+- `INTACT` — signature valid and nothing modified, but the key isn't pinned (integrity only)
+- `FAILED` — content changed, a file dropped/added, or an untrusted re-sign
+
+Tampering is always detectable; forging authenticity requires the private key.
+
+**Confidence gate.** After a scan, Arès grades what the agents actually did — findings, tool actions, files read, give-up signals — and marks the run 🟢 HIGH / 🟡 OK / 🔴 LOW. A bailed, empty report can never pass as a real "clean".
+
+## Architecture
+
+```
+ares_setup/        the Arès product — init, dashboard, cascade, guardrails,
+                   model-eval, confidence, offline, diff, compliance, hub
+ares_provenance/   Ed25519 signing & verification (zero external deps but crypto)
+ares_console.py    streaming local console
+ares_watch.py      live agent-activity feed + auto-sign on completion
+ares_engine/       the vendored, modified Strix engine (owned, not patched)
 ```
 
-One boxed view: your hardware (usable memory, GPU), every local model with a fit
-indicator, and — with `--eval` — whether each is actually usable as a Strix agent.
+The engine lives in `ares_engine/` — a full, version-controlled copy of Strix with the Arès modifications baked in (ethical-use notice, local-first routing, cascade, Docker naming, reliability fixes). See [`ares_engine/VENDORED.md`](ares_engine/VENDORED.md) for the exact diff vs upstream.
 
-## Reliability tools (from the real-run findings)
+## Ethical use
 
-```bash
-# Is a model actually usable as a Strix agent? (tool-calling is the blocker)
-python3 -m ares_setup.model_eval ares-cascade-triage-qwen3-5
+Arès is for **authorized** security testing only — on systems you own or have explicit written permission to test. You alone are responsible for how you use it. The authors accept no liability for misuse.
 
-# Can you trust a finished scan's result? (real "clean" vs a bailed/empty report)
-python3 -m ares_setup.confidence strix_runs/<run> --annotate
-```
+## License & attribution
 
-- `model_eval` scores tool-calling, vuln recall and speed → **STRIX-READY** or not.
-- `confidence` marks a run 🟢HIGH / 🟡OK / 🔴LOW from what the agents actually did;
-  `ares_watch` annotates it into the report **before signing**, so a bailed
-  "0 findings" can't masquerade as a clean result.
-- Local agents also get a mandatory "read + test before concluding" directive
-  (`ARES_LOCAL_REINFORCE`, on by default) to counter the bailing seen in testing.
+Arès is licensed under the **Apache License 2.0** ([`LICENSE`](LICENSE)).
 
-## Profiles — standard + offensive
-
-Arès runs two engine profiles side by side:
-
-| profile | env file | model | use |
-|---|---|---|---|
-| `default` | `ares.env` | Qwen3.6 (standard) | best general quality |
-| `offensive` | `ares-offensive.env` | Qwen3.6-27B **OBLITERATED** | uncensored, no refusals |
-
-```bash
-python3 -m ares_setup --profile offensive --model hf.co/OBLITERATUS/Qwen3.6-27B-OBLITERATED:Q4_K_M -y
-python3 ares_console.py --profile offensive          # launch on the offensive engine
-# or switch live inside the console:  /profile offensive
-```
-
-## `ares_console.py` — the branded local console
-
-A zero-dependency, streaming terminal UI for talking to the local engine:
-fire-gradient banner, an air-gapped status badge, a thinking spinner, and a
-live typewriter answer straight from Ollama.
-
-```bash
-python3 ares_console.py                 # interactive REPL
-python3 ares_console.py --once "First recon step for a web pentest?"
-```
-
-## `ares init` — guided local setup (shipped)
-
-Zero-config local LLM setup. Detects your hardware, recommends and pulls a model,
-and bakes your chosen resource level into a ready-to-run config.
-
-```bash
-# see the plan for your machine without changing anything
-python3 -m ares_setup --dry-run
-
-# set up on the recommended model at full power
-python3 -m ares_setup --level max -y
-
-# then run Arès fully local, no API cost
-source ares.env
-strix --target ./your-app
-```
-
-### Air-gapped mode
-
-```bash
-python3 -m ares_setup --offline --level balanced -y   # zero-egress config
-python3 -m ares_setup.offline ares.env                # independently audit any env
-```
-
-`--offline` disables telemetry, empties the web-search key, and refuses any
-non-local model — the audit **blocks** a cloud config. For a kernel-enforced air
-gap, run the Strix container with `--network none` (printed by the wizard).
-
-The **resource dial** (`--level eco|balanced|max` or `0-100`) maps to context
-size, parallel agents, GPU offload and reasoning effort — all capped to your free
-memory, and baked into a derived Ollama model so the settings actually apply.
-
-## `ares-provenance` — signed, verifiable reports (shipped)
-
-```bash
-# 1. one-time: create your Arès signing key (keep the private key secret)
-python3 -m ares_provenance keygen
-
-# 2. sign a finished scan directory
-python3 -m ares_provenance sign ./run-2026-08-21 --model qwen3.6-27b-obliterated --local
-
-# 3. anyone can verify authenticity + integrity
-python3 -m ares_provenance verify ./run-2026-08-21
-```
-
-Verify exits `0` if authentic, `1` if tampered/forged — CI-friendly.
-
-**Guarantee:** we don't claim the marker can't be *removed* (no local file can).
-We guarantee it can't be removed or altered **and still pass verification** —
-tampering is always detectable, forging requires the private key.
-
-## Dev
-
-```bash
-python3 -m pytest tests/ -v
-```
-
-## License
-Fork of Strix © OmniSecure Inc. (2025), Apache-2.0. Attribution retained.
+It is a derivative work of **Strix** (© 2025 OmniSecure Inc., Apache-2.0). Modified files carry a notice per Apache-2.0 §4; see [`NOTICE`](NOTICE). The name "Strix" is used only to describe the origin of this work. Thanks to the Strix team for the engine.
