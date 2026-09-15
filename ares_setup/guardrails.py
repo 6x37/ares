@@ -14,6 +14,7 @@ mechanisms Arès wrappers check (documented in INTEGRATION_NOTES).
 from __future__ import annotations
 
 import ipaddress
+import socket
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -45,14 +46,27 @@ def _host_of(target: str) -> str:
     return urlparse("//" + target).hostname or target.split("/")[0].split(":")[0]
 
 
-def _is_internal(host: str) -> bool:
-    if host in _METADATA_HOSTS:
-        return True
+def _ip_is_internal(ip_str: str) -> bool:
     try:
-        ip = ipaddress.ip_address(host)
+        ip = ipaddress.ip_address(ip_str)
         return ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved
     except ValueError:
-        return False  # a domain name; not an IP literal
+        return False
+
+
+def _is_internal(host: str, *, resolve: bool = True) -> bool:
+    if host in _METADATA_HOSTS or host in ("localhost", "host.docker.internal"):
+        return True
+    if _ip_is_internal(host):
+        return True
+    # A hostname can still resolve to a private/metadata IP (SSRF via DNS).
+    if resolve:
+        try:
+            infos = socket.getaddrinfo(host, None)
+            return any(_ip_is_internal(i[4][0]) for i in infos)
+        except (socket.gaierror, OSError, UnicodeError):
+            return False
+    return False
 
 
 def check_scope(target: str, *, allowlist: list[str] | None = None,

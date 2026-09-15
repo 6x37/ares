@@ -43,8 +43,15 @@ class VerifyResult:
     errors: list[str] = field(default_factory=list)
 
     def summary(self) -> str:
+        if self.ok and self.trusted_key:
+            return f"VERIFIED — authentic Arès report · trusted key {self.key_fingerprint}"
         if self.ok:
-            return f"VERIFIED — authentic Arès report (key {self.key_fingerprint})"
+            # Signature is internally valid and nothing was modified, but the key
+            # was not pinned to a known Arès key — this proves integrity, not
+            # authorship. Anyone can re-sign with their own key.
+            return (f"INTACT — signature valid, content unmodified · signed by "
+                    f"{self.key_fingerprint} (key NOT pinned). Pass the trusted "
+                    f"Arès public key to assert authenticity.")
         parts = ["FAILED — report is NOT verifiable as genuine Arès output:"]
         if not self.signature_valid:
             parts.append("  • signature invalid or unparseable")

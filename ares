@@ -1,6 +1,6 @@
 #!/bin/bash
 # Arès launcher — run from anywhere. Dispatches to the right module.
-ARES_HOME="/Users/z/Desktop/ares"
+ARES_HOME="$(cd "$(dirname "$(readlink -f "$0" 2>/dev/null || echo "$0")")" && pwd)"
 cd "$ARES_HOME" || { echo "Arès introuvable à $ARES_HOME"; exit 1; }
 cmd="${1:-home}"; shift 2>/dev/null
 case "$cmd" in

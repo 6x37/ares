@@ -51,3 +51,27 @@ def test_compliance_maps_sqli(tmp_path):
     rows = map_run(run)
     assert rows and rows[0]["controls"].get("PCI-DSS")
     assert "PCI-DSS" in to_markdown(run)
+
+
+def test_scope_blocks_hostname_resolving_internal():
+    # localhost / host.docker.internal resolve to loopback → must be blocked
+    assert not check_scope("http://localhost:3000").allowed
+    assert not check_scope("http://host.docker.internal:3000").allowed
+    # ...unless explicitly authorized for an internal engagement
+    assert check_scope("http://localhost:3000", allow_internal=True).allowed
+
+
+def test_verify_message_distinguishes_trust(tmp_path):
+    """Unpinned verify says INTACT (integrity), pinned says VERIFIED (authentic)."""
+    import json
+    from ares_provenance import (generate_keypair, save_keypair, load_private_key,
+                                  load_public_key, sign_run, verify_run)
+    from ares_provenance.keys import PRIV_NAME, PUB_NAME
+    run = tmp_path / "run"; (run / "vulnerabilities").mkdir(parents=True)
+    (run / "penetration_test_report.md").write_text("# r\n", encoding="utf-8")
+    (run / "vulnerabilities.json").write_text("[]", encoding="utf-8")
+    keys = tmp_path / "k"; save_keypair(generate_keypair(), key_dir=keys)
+    sign_run(run, load_private_key(keys / PRIV_NAME))
+    assert "INTACT" in verify_run(run).summary()
+    pinned = verify_run(run, expected_public_key=load_public_key(keys / PUB_NAME))
+    assert "VERIFIED" in pinned.summary() and pinned.ok

@@ -102,7 +102,9 @@ def main() -> int:
     return rc
 
 
-DEMO_URL = "https://claude.ai/code/artifact/f4b16bbe-6c84-4547-9e48-c87f370267d1"
+import os as _os
+# Optional shareable web report; set ARES_DEMO_URL to enable. Empty = local only.
+DEMO_URL = _os.getenv("ARES_DEMO_URL", "")
 
 
 def _print_links() -> None:

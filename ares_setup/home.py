@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -71,12 +72,27 @@ def _run_scan(c: ui.C) -> None:
     env = {"fast": "ares-fast.env", "offensive": "ares-run.env",
            "cascade": "ares-cascade.env"}.get(prof, "ares-fast.env")
     turns = _ask(c, "max turns:", "15")
-    print(c.gray(f"\n  → source {env} && strix -t {target} -m quick -n --max-turns {turns}"))
+    if not turns.isdigit():
+        print(c.red("  max turns doit être un entier.")); return
+    print(c.gray(f"\n  → {env} · strix -t {target} -m quick -n --max-turns {turns}"))
     print(c.gray("  (astuce: ouvre `ares watch` dans un autre terminal pour suivre en live)\n"))
-    if _ask(c, "lancer ? (y/n):", "y").lower().startswith("y"):
-        _run(["bash", "-lc",
-               f"set -a; source {env}; set +a; "
-               f"$HOME/.local/bin/strix -t {target} -m quick -n --max-turns {turns}"])
+    if not _ask(c, "lancer ? (y/n):", "y").lower().startswith("y"):
+        return
+    # No shell: parse the env file ourselves and run strix as argv (no injection).
+    run_env = dict(os.environ)
+    envfile = HOME / env
+    if envfile.exists():
+        for line in envfile.read_text().splitlines():
+            line = line.strip()
+            if line.startswith("export "):
+                line = line[7:]
+            if "=" in line and not line.startswith("#"):
+                k, v = line.split("=", 1)
+                run_env[k.strip()] = v.strip().strip('"').strip("'")
+    strix_bin = os.path.expanduser("~/.local/bin/strix")
+    strix = strix_bin if os.path.exists(strix_bin) else "strix"
+    subprocess.run([strix, "-t", target, "-m", "quick", "-n", "--max-turns", turns],
+                   cwd=str(HOME), env=run_env)
 
 
 def home() -> int:

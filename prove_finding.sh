@@ -3,7 +3,7 @@
 # Requires: ANTHROPIC_API_KEY in your env. Restarts Ollama + Docker + Juice Shop.
 set -e
 export PATH="$HOME/.local/bin:/opt/homebrew/bin:$PATH"
-cd "$(dirname "$0")"
+cd "$(cd "$(dirname "$0")" && pwd)"
 
 [ -z "$ANTHROPIC_API_KEY" ] && { echo "✗ export ANTHROPIC_API_KEY=... d'abord"; exit 1; }
 
