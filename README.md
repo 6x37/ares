@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/banner.png" alt="Arès — local-first, signed, verifiable" width="100%">
+
 # Arès
 
 **A local-first, verifiable, autonomous AI pentester.**
