@@ -50,7 +50,7 @@ Reliability over raw power.
 
 ```bash
 # 1. clone and install (Python 3.12) — vendored engine + the `ares` command
-git clone https://github.com/nuisant/ares && cd ares
+git clone https://github.com/6x37/ares && cd ares
 pip install -e ".[engine]"          # or: uv pip install -e ".[engine]"
 
 # 2. set up a local model, guided — detects your hardware, picks & pulls a model
